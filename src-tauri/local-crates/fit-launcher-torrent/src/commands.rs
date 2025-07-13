@@ -10,7 +10,10 @@ use tracing::{error, info};
 
 use crate::config::FitLauncherConfig;
 use crate::functions::TorrentSession;
+#[cfg(target_os = "windows")]
 use fit_launcher_ui_automation::mighty_automation::windows_ui_automation;
+#[cfg(target_os = "linux")]
+use fit_launcher_ui_automation::mighty_automation::linux_ui_automation;
 
 use super::*;
 
@@ -228,10 +231,12 @@ pub async fn run_automate_setup_install(
     if let Some(folder) = torrent_folder {
         let setup_path = PathBuf::from_str(&folder).unwrap().join("setup.exe");
         info!("Setup path is : {}", setup_path.to_str().unwrap());
+        #[cfg(target_os = "windows")]
         windows_ui_automation::start_executable_components_args(setup_path);
 
         let game_output_folder = folder.replace(" [FitGirl Repack]", "");
 
+        #[cfg(target_os = "windows")]
         windows_ui_automation::automate_until_download(&game_output_folder).await;
         info!("Torrent has completed!");
         info!("Game Installation Has been Started");
